@@ -1,1275 +1,758 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 
 <style>
-  body{
+body{
   margin:0;
-  font-family:sans-serif;
-  overflow-x:hidden;
-
-  background:linear-gradient(-45deg,#f8fafc,#eef4ff,#f1f5f9,#e0ecff);
-  background-size:400% 400%;
-  animation:bgMove 12s ease infinite;
-}
-
-@keyframes bgMove{
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
-}
-
-html, body{
-  width:100%;
-  min-height:100%;
+  font-family: 'Inter', sans-serif;
+  background:linear-gradient(135deg,#0f172a,#1e293b);
+  color:white;
+  text-align:center;
 }
 
 /* CONTAINER */
 .container{
-  width:100%;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
-  box-sizing:border-box;
-}
-
- /* CARD */
-.card{
-  position:relative;
-  width:min(100%,430px);
-
-  min-height:auto;
-
-  box-shadow:0 10px 30px rgba(0,0,0,0.08);
-
-  border:1px solid rgba(255,255,255,0.5);
-
-  background:rgba(255,255,255,0.95);
-
-  backdrop-filter:blur(12px);
-
-  padding:28px 20px 70px;
-
-  box-sizing:border-box;
-
-  border-radius:32px;
-
+  max-width:420px;
   margin:auto;
-
-  transform:translateX(40px);
-  opacity:0;
-
-  transition:
-    transform 0.45s ease,
-    opacity 0.45s ease;
-}
-  
-  .card::before{
-  content:'';
-
-  position:absolute;
-
-  inset:0;
-
-  border-radius:inherit;
-
-  padding:1px;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,.55),
-      rgba(255,255,255,0)
-    );
-
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-
-  -webkit-mask-composite:xor;
-
-  pointer-events:none;
+  padding:20px;
 }
 
-@media (max-width:768px){
-
-  body{
-    overflow-x:hidden;
-  }
-
-  .container{
-    padding:12px;
-    align-items:flex-start;
-  }
-
-  .card{
-
-    width:100%;
-
-    max-width:420px;
-
-    min-height:auto;
-
-    border-radius:24px;
-
-    padding:20px 16px 32px;
-
-    margin:0 auto 20px auto;
-  }
-
-  #step1{
-    min-height:100dvh;
-    padding:20px;
-    box-sizing:border-box;
-  }
-
-  .camera{
-    width:min(78vw,300px);
-    height:min(78vw,300px);
-  }
-
-  button{
-    height:56px;
-    font-size:16px;
-    margin-top:22px;
-  }
-
-  .field input{
-    height:58px;
-  }
-
-  #signPad{
-    height:180px;
-  }
+/* GLASS CARD */
+.card{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
+  border-radius:25px;
+  padding:20px;
+  margin-top:20px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.3);
 }
-  
-#loader p{
-  margin-top:18px;
-  color:#374151;
-  font-size:18px;
+
+.hidden{
+  display:none !important;
+}
+
+#loader{
+  pointer-events: none;
+}
+
+#loader[style*="none"]{
+  pointer-events: none;
+}
+
+/* TITLE */
+#welcome{
+  margin-top:60px;
+  font-size:26px;
   font-weight:600;
 }
-/* STEP CENTER */
-#step1{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  animation:fadeIn 0.6s ease;
-}
 
-/* STEP 5 */
-#step5{
-  min-height:300px;
-
-  display:none;
-
-  justify-content:center;
-  align-items:center;
-
-  flex-direction:column;
-
-  text-align:center;
-
-  position:relative;
-
-  overflow:hidden;
-
-  border-radius:32px;
-
-  background:rgba(255,255,255,0.96);
-
-  z-index:1;
-
-  padding:3px;
-}
-
-/* RAINBOW BORDER */
-#step5::before{
-
-  content:'';
-
-  position:absolute;
-
-  inset:0;
-
-  border-radius:32px;
-
-  background:linear-gradient(
-    90deg,
-    #ff0000,
-    #ff7300,
-    #fffb00,
-    #48ff00,
-    #00ffd5,
-    #002bff,
-    #7a00ff,
-    #ff00c8,
-    #ff0000
-  );
-
-  background-size:400% 400%;
-
-  animation:rainbowMove 4s linear infinite;
-
-  z-index:-2;
-}
-
-/* INNER WHITE CARD */
-#step5::after{
-
-  content:'';
-
-  position:absolute;
-
-  inset:4px;
-
-  border-radius:28px;
-
-  background:rgba(255,255,255,0.96);
-
-  z-index:-1;
-}
-
-/* ACTIVE */
-#step5.active{
-  display:flex;
-}
-
-/* RAINBOW ANIMATION */
-@keyframes rainbowMove{
-
-  0%{
-    background-position:0% 50%;
-  }
-
-  100%{
-    background-position:400% 50%;
-  }
-}
-
-  #step4{
-  flex-direction:column;
-}
-
-#step4 button:last-child{
-  margin-top:14px;
-}
-
-/* ALL STEPS */
-.step{
-  display:none;
-  opacity:0;
-  transform:translateX(30px);
-}
-
-.step.active{
-  display:block;
-  opacity:1;
-  transform:translateX(0);
-  animation:slidePage .4s ease;
-}
-
-@keyframes slidePage{
-
-  from{
-    opacity:0;
-    transform:
-      translateY(24px)
-      scale(.96);
-  }
-
-  to{
-    opacity:1;
-    transform:
-      translateY(0)
-      scale(1);
-  }
-}
-  
-/* ACTIVE STEP */
-.active{
-  display:block;
-  transform:translateX(0);
-  opacity:1;
-}
-
-/* TOP SPACING */
-.top{
-  padding-top:10px;
-}
-
-/* LOGO */
-.logo{
-  width:85px;
-  display:block;
-  margin:10px auto 20px;
-}
-  .signWrap{
-  position:relative;
-}
-
-.signGuide{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-
-  color:#cbd5e1;
-  font-size:28px;
-  font-weight:700;
-  pointer-events:none;
-  transition:0.3s ease;
-}
-
-   /* SIGN PAD */
-#signPad{
-  width:100%;
-  height:220px;
-
-  border:1px solid #d1d5db;
-  border-radius:14px;
-
-  touch-action:none;
-
-  display:block;
-
-  margin-top:10px;
-
-  background:
-    linear-gradient(
-      to bottom,
-      #ffffff,
-      #f8fafc
-    );
-
-  box-shadow:
-    inset 0 1px 4px rgba(0,0,0,.04);
-}
-
-/* TYPING */
-#typing{
-  font-size:24px;
-  font-weight:700;
-  text-align:center;
-  color:#111827;
-}
-
-/* BUTTON */
-button{
-  position:relative;
-
-  width:100%;
-  height:64px;
-
+/* INPUT */
+input{
+  width:90%;
+  padding:15px;
+  border-radius:20px;
   border:none;
+  outline:none;
+  font-size:16px;
+  background:rgba(255,255,255,0.08);
+  color:white;
+}
 
-  cursor:pointer;
-
+/* SUGGESTIONS */
+#suggestions{
+  margin-top:10px;
+  border-radius:15px;
   overflow:hidden;
-
-  color:#fff;
-
-  font-size:18px;
-  font-weight:700;
-
-  letter-spacing:.3px;
-
-  margin-top:38px;
-
-  background:linear-gradient(
-    135deg,
-    #2563eb,
-    #3b82f6,
-    #60a5fa
-  );
-
-  background-size:200% 200%;
-
-  animation:gradientMove 6s ease infinite;
-
-  border-width:3px 18px 3px 18px;
-
-  border-style:solid;
-
-  border-color:
-    #93c5fd
-    #93c5fd
-    #1d4ed8
-    #1d4ed8;
-
-  border-radius:0 55px 0 55px;
-
-  box-shadow:
-    0 10px 25px rgba(37,99,235,.28),
-    inset 0 1px 0 rgba(255,255,255,.25);
-
-  transition:
-    transform .2s ease,
-    box-shadow .2s ease;
+  background: rgba(0,0,0,0.8);
+  position: relative;
+  z-index: 10;
 }
 
-  button::before{
-  content:'';
-
-  position:absolute;
-
-  top:0;
-  left:-120%;
-
-  width:80%;
-  height:100%;
-
-  background:linear-gradient(
-    90deg,
-    transparent,
-    rgba(255,255,255,.35),
-    transparent
-  );
-
-  transform:skewX(-25deg);
-
-  transition:.7s;
+.s-item{
+  padding:12px;
+  text-align:left;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  cursor:pointer;
+}
+.s-item:hover{
+  background:rgba(255,255,255,0.08);
 }
 
-button:hover::before{
-  left:140%;
-}
-  
-  button::after{
-
-  content:'';
-
-  position:absolute;
-
-  width:0;
-  height:0;
-
-  border-radius:50%;
-
-  background:rgba(255,255,255,.35);
-
-  top:50%;
-  left:50%;
-
-  transform:translate(-50%,-50%);
-
-  transition:.5s;
-}
-
-button:active::after{
-  width:300px;
-  height:300px;
-  opacity:0;
-}
-
-  button:hover{
-
-  transform:translateY(-2px) scale(1.01);
-
-  box-shadow:
-    0 14px 30px rgba(37,99,235,.35),
-    0 0 18px rgba(96,165,250,.35);
-}
-
-  @keyframes gradientMove{
-
-  0%{
-    background-position:0% 50%;
-  }
-
-  50%{
-    background-position:100% 50%;
-  }
-
-  100%{
-    background-position:0% 50%;
-  }
-}
-  
-button:active{
-  transform:scale(.98);
-  box-shadow:0 4px 12px rgba(37,99,235,0.2);
-}
-
-  .actionButtons{
-  position:sticky;
-  bottom:0;
-
-  background:rgba(255,255,255,.9);
-
-  padding-top:20px;
-
-  backdrop-filter:blur(10px);
-}
-  
 /* CAMERA */
 .camera{
-  width:78vw;
-  height:78vw;
-  max-width:290px;
-  max-height:290px;
-  border:4px solid rgba(255,255,255,0.5);
+  width:240px;
+  height:240px;
   border-radius:50%;
   overflow:hidden;
-  margin:30px auto;
+  margin:20px auto;
   position:relative;
-
-  box-shadow:
-    0 0 0 8px rgba(37,99,235,0.08),
-    0 0 35px rgba(37,99,235,0.25);
-
-  animation:
-    pulseCam 2s infinite,
-    camGlow 3s ease infinite;
-}
-
-.camera::before{
-  content:'';
-  position:absolute;
-  width:100%;
-  height:10px;
-
-   background:linear-gradient(
-    to bottom,
-    rgba(59,130,246,.0),
-    rgba(59,130,246,.9),
-    rgba(59,130,246,.0)
-  );
-
-  top:0;
-  left:0;
-
-  animation:scan 2.4s linear infinite;
-
-  z-index:2;
-
-  filter:blur(1px);
-}
-
-.camera::after{
-  content:'';
-  position:absolute;
-  inset:12%;
-  border:2px dashed rgba(255,255,255,0.9);
-  border-radius:50%;
-}
-
-@keyframes pulseCam{
-  0%{transform:scale(1);}
-  50%{transform:scale(1.02);}
-  100%{transform:scale(1);}
-}
-
-@keyframes scan{
-  0%{top:10%;}
-  100%{top:85%;}
-}
-  
-  @keyframes camGlow{
-
-  0%{
-    box-shadow:
-      0 0 0 8px rgba(37,99,235,0.08),
-      0 0 25px rgba(37,99,235,0.18);
-  }
-
-  50%{
-    box-shadow:
-      0 0 0 10px rgba(59,130,246,0.12),
-      0 0 40px rgba(59,130,246,0.32);
-  }
-
-  100%{
-    box-shadow:
-      0 0 0 8px rgba(37,99,235,0.08),
-      0 0 25px rgba(37,99,235,0.18);
-  }
+  box-shadow:0 0 0 5px rgba(34,197,94,0.3),
+             0 0 40px rgba(34,197,94,0.4);
 }
 
 video{
   width:100%;
   height:100%;
   object-fit:cover;
+  transform:scaleX(-1);
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:30px;
+  font-size:17px;
+  font-weight:600;
+  margin-top:15px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.login{
+  background:linear-gradient(135deg,#22c55e,#4ade80);
+  color:white;
+}
+
+.logout{
+  background:linear-gradient(135deg,#ef4444,#f87171);
+  color:white;
+}
+
+button:hover{
+  transform:scale(1.04);
+}
+
+/* TIMER */
+#timer{
+  font-size:22px;
+  margin-top:15px;
+  opacity:0.9;
 }
 
 /* LOADER */
-  #loader{
-  display:none;
-
-  min-height:250px;
-
+#loader{
+  position:fixed;
+  top:0;left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
   display:flex;
-  flex-direction:column;
-
   justify-content:center;
   align-items:center;
-  text-align:center;
-  animation:fadeIn 0.3s ease;
+  z-index:999;
 }
-  
+
 .spinner{
-  width:55px;
-  height:55px;
-  border:5px solid #e5e7eb;
-  border-top:5px solid #2563eb;
+  width:50px;
+  height:50px;
+  border:5px solid #333;
+  border-top:5px solid #22c55e;
   border-radius:50%;
   animation:spin 1s linear infinite;
-  margin:auto;
 }
 
-/* SUCCESS */
-#success{
-  display:none;
-  text-align:center;
-  animation:
-    popIn .5s ease,
-    successGlow 2s ease infinite;
-}
-  @keyframes successGlow{
-
-  0%{
-    transform:scale(1);
-  }
-
-  50%{
-    transform:scale(1.02);
-  }
-
-  100%{
-    transform:scale(1);
-  }
-}
-  
-  #success h2{
-  margin-top:22px;
-  font-size:28px;
-  color:#111827;
-}
-
-#success h3{
-  color:#6b7280;
-  font-weight:500;
-}
-
-.tick{
-  width:110px;
-  height:110px;
-
-  border-radius:50%;
-
-  background:#22c55e;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  color:#fff;
-  font-size:56px;
-  font-weight:bold;
-
-  margin:auto;
-
-  animation:tickPop 0.6s ease;
-
-  box-shadow:0 10px 30px rgba(34,197,94,0.35);
-}
-
-@keyframes tickPop{
-  0%{
-    transform:scale(0);
-  }
-
-  60%{
-    transform:scale(1.12);
-  }
-
-  100%{
-    transform:scale(1);
-  }
-}
-
-/* ANIMATIONS */
 @keyframes spin{
-  100%{
-    transform:rotate(360deg);
-  }
+  100%{transform:rotate(360deg)}
 }
 
-@keyframes fadeIn{
-  from{
-    opacity:0;
-  }
-  to{
-    opacity:1;
-  }
-}
-
-@keyframes slideUp{
-  from{
-    opacity:0;
-    transform:translateY(20px);
-  }
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
-
-@keyframes popIn{
-  from{
-    transform:scale(0.7);
-    opacity:0;
-  }
-  to{
-    transform:scale(1);
-    opacity:1;
-  }
-}
-
-@keyframes bounce{
-  0%{
-    transform:scale(0);
-  }
-  60%{
-    transform:scale(1.1);
-  }
-  100%{
-    transform:scale(1);
-  }
-}
-
-.field{
-  position:relative;
-  margin-top:18px;
-}
-
-.field input{
-  width:100%;
-  height:64px;
-
-  padding:18px 16px 12px;
-
-  background:#fff;
-
-  border:none;
-
-  box-shadow:inset 0 0 0 2px #d1d5db;
-
-  border-radius:18px;
-
-  padding:26px 16px 10px 16px;
-
-  font-size:16px;
-  font-weight:500;
-
-  color:#111827;
-
-  outline:none;
-
-  box-sizing:border-box;
-
-  transition:.2s ease;
-}
-
-  .field input:hover{
-  transform:translateY(-1px);
-}
-
-.field input:focus{
-  transform:scale(1.01);
-  box-shadow:
-    inset 0 0 0 2px #2563eb,
-    0 0 0 3px rgba(37,99,235,.08);
-}
-
-.field label{
-  position:absolute;
-  left:16px;
-  top:50%;
-
-  transform:translateY(-50%);
-
-  font-size:16px;
-  font-weight:500;
-
-  color:#94a3b8;
-
-  background:transparent;
-
-  padding:0 6px;
-
-  line-height:1;
-
-  pointer-events:none;
-
-  transition:all .18s ease;
-
-  z-index:2;
-}
-
-/* FLOAT LABEL */
-.field input:focus + label,
-.field input:not(:placeholder-shown) + label{
-
-  top:0;
-
-  transform:translateY(-50%);
-
-  font-size:11px;
-
-  font-weight:700;
-
-  color:#fff;
-
-  background:#2563eb;
-
-  padding:4px 8px;
-
-  border-radius:999px;
-}
-  
-.progressWrap{
+  #toast{
   position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:5px;
-  background:#dbeafe;
-  z-index:9999;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#22c55e;
+  color:white;
+  padding:14px 20px;
+  border-radius:12px;
+  opacity:0;
+  transition:0.3s;
 }
-
-.progressBar{
-  width:25%;
-  height:100%;
-  background:linear-gradient(90deg,#2563eb,#60a5fa);
-  transition:0.4s ease;
-  border-radius:20px;
-  box-shadow:
-    0 0 12px rgba(37,99,235,.4);
+#toast.show{
+  opacity:1;
 }
-
 </style>
 </head>
 
 <body>
 
+<div id="loader" style="display:none;">
+  <div class="spinner"></div>
+</div>
+
 <div class="container">
-  <div class="progressWrap">
-  <div class="progressBar" id="progressBar"></div>
+
+<h2 id="welcome"></h2>
+
+<!-- SEARCH -->
+<div id="step2" class="card hidden">
+  <input id="name" placeholder="Search your name..." onkeyup="filterNames()">
+  <div id="suggestions"></div>
 </div>
 
-<!-- STEP 1 -->
-<div id="step1">
-  <div id="logoAnim" style="width:180px;height:180px"></div>
-  <img src="https://www.z1tech.com/images/global/logo.svg" class="logo">
-  <div id="typing"></div>
-</div>
-
-<!-- STEP 2 FORM -->
-<div id="step2" class="card step top">
-
-<img src="https://i.ibb.co/DHg5tCWx/images-1.png" class="logo">
-
-<div class="field">
-<input type="text" id="name" placeholder=" " required>
-<label for="name">Your Name</label>
-</div>
-  
-<div class="field">
-<input type="text" id="meet" placeholder=" " required>
-<label for="meet">Person to Meet</label>
-</div>
-
-<div class="field">
-<input type="text" id="purpose" placeholder=" " required>
-<label for="purpose">Purpose</label>
-</div>
-
-<div class="field">
-<input type="text" id="mobile" placeholder=" " maxlength="10" inputmode="numeric" required>
-<label for="mobile">Mobile</label>
-</div>
-
-<div class="field">
-<input type="text" id="address" placeholder=" " required>
-<label for="address">Address</label>
-</div>
-
-
-<button type="button" onclick="nextStep()">Next</button>
-
-</div>
-
-
-<!-- STEP 3 CAMERA -->
-<div id="step3" class="card step">
-
-<div class="camera">
-  <video id="cam" autoplay playsinline></video>
-</div>
-
-<button type="button" onclick="capture()">Capture Photo</button>
-
-</div>
-
-<!-- STEP 4 SIGN -->
-<div id="step4" class="card step">
-
-<div class="signWrap">
-  <div class="signGuide" id="signGuide">Sign Here</div>
-  <canvas id="signPad"></canvas>
-</div>
-  
-<div class="actionButtons">
-<button type="button" onclick="clearSign()">Clear</button>
-<button type="button" onclick="finalSubmit()">Submit</button>
-</div>
-  
-</div>
-
-<!-- STEP 5 -->
-<div id="step5" class="card step">
-
-  <div id="loader">
-    <div class="spinner"></div>
-    <p>Submitting...</p>
+<!-- CAMERA -->
+<div id="step3" class="card hidden">
+  <div class="camera">
+    <video id="cam" autoplay muted playsinline></video>
   </div>
+  <button id="actionBtn" class="login">📸 IN</button>
+</div>
 
-  <div id="success">
-    <div class="tick">✓</div>
-    <h2>Visitor Registered</h2>
-    <h3>Thank you for visiting Z1Tech</h3>
-  </div>
-
+<!-- TIMER -->
+<div id="step4" class="card hidden">
+  <div id="timer"></div>
+  <button class="logout" onclick="confirmLogout()">🔴 OUT</button>
 </div>
 
 </div>
 
+<div id="toast"></div>
+  
 <script>
 
-let stream;
-let photoData="";
+let employees = [];
+let hasCheckedIn = false;
+let loader = document.getElementById("loader");
+let cam = document.getElementById("cam");
+let timer = document.getElementById("timer");
+let name = document.getElementById("name");
+let selectedEmployee = null;
+let currentMode = "in"; // or "out"
+let employeeDescriptor = null;
 
-// 🔥 TYPING EFFECT
-let text="Welcome to Z1Tech 🙏";
-let i=0;
+const actionBtn = document.getElementById("actionBtn");
 
-let typingEl = document.getElementById("typing");
-
-function typing(){
-  if(i < text.length){
-    typingEl.innerHTML += text.charAt(i);
-    i++;
-    setTimeout(typing,80);
-  } else {
-    setTimeout(()=>{
-      document.getElementById("step1").style.display="none"; // ADD THIS
-      document.getElementById("step2").classList.add("active");
-      setProgress(2);
-    },1000);
-  }
-}
-   lottie.loadAnimation({
-  container:document.getElementById('logoAnim'),
-  renderer:'svg',
-  loop:true,
-  autoplay:true,
-  path:'https://assets1.lottiefiles.com/packages/lf20_jcikwtux.json'
-});
-
-typing();
-
- 
-
-// NEXT STEP
-function nextStep(){
-
-  let nameVal = document.getElementById("name").value.trim();
-  let meetVal = document.getElementById("meet").value.trim();
-  let purposeVal = document.getElementById("purpose").value.trim();
-  let mobileVal = document.getElementById("mobile").value.trim();
-  let addressVal = document.getElementById("address").value.trim();
-
-  if(!nameVal || !meetVal || !purposeVal || !mobileVal || !addressVal){
-    alert("⚠️ All fields required");
-    return;
-  }
-    
-  if(!/^[6-9]\d{9}$/.test(mobileVal)){
-    alert("📱 Enter Valid 10 digit mobile number ");
-    return;
-  }
-  
-  document.getElementById("step2").classList.remove("active");
-  document.getElementById("step3").classList.add("active");
-  setProgress(3);
-  startCamera(); 
-}
-
-// CAMERA START
-
-function startCamera(){
-
-  console.log("Camera start called");
-
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: "user" },
-    audio: false
-  })
-  .then(s=>{
-    stream = s; // 🔥 MAIN FIX
-
-    let video = document.getElementById("cam");
-    video.srcObject = stream;
-
-    video.onloadedmetadata = () => {
-      video.play();
-    };
-
-    console.log("Camera working ✅");
-  })
-  .catch(err=>{
-    console.error("Camera error:", err);
-    alert("Camera blocked: " + err.message);
-  });
-}
-
-function capture(){
-
-  if(!stream){
-    alert("📸 Start camera first");
-    return;
-  }
-
-  let video = document.getElementById("cam");
-
-  // Use actual video resolution
-  let canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-
-  let ctx = canvas.getContext("2d");
-
-  // Draw without distortion
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  // Better quality (you can tweak 0.7–1.0)
-  photoData = canvas.toDataURL("image/jpeg", 0.8);
-
-  if(!photoData){
-    alert("Photo failed");
-    return;
-  }
-
-  // STOP CAMERA
-  stream.getTracks().forEach(t => t.stop());
-
-  // NEXT STEP (SIGNATURE)
- document.getElementById("step3").classList.remove("active");
-document.getElementById("step4").classList.add("active");
-
-  setTimeout(()=>{
-  resizeCanvas();
-},100);
-  
-  setProgress(4);
-}
-//  SAVE
-function finalSubmit(){
-
-  if(!photoData){
-    alert("📸 Please capture photo first");
-    return;
-  }
-
-  if(canvas.width === 0 || canvas.height === 0){
-    alert("✍️ Signature pad not ready");
-    return;
-  }
-
-  let signData = ctx.getImageData(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  ).data;
-
-  let blank = true;
-
-  for(let i=3;i<signData.length;i+=4){
-
-    if(signData[i] !== 0){
-      blank = false;
-      break;
-    }
-  }
-
-  if(blank){
-    alert("✍️ Signature is required");
-    return;
-  }
-
-  // STEP CHANGE
-  document.getElementById("step4").classList.remove("active");
-  document.getElementById("step5").classList.add("active");
-
-  document.getElementById("loader").style.display = "block";
-  document.getElementById("success").style.display = "none";
-
-  let url = "https://script.google.com/macros/s/AKfycbzyduPQRo4dyp6Q0lCrw-LIS0bNb6m2wZC_H1DxxxNkCvXyBwWY5RxZlcotWh9fYAdt/exec";
-
-  fetch(url, {
-  method: "POST",
-  body: JSON.stringify({
-  key: "Z1TECH123",
-  type: "visitor",
-
-  name: document.getElementById("name").value,
-  meet: document.getElementById("meet").value,
-  purpose: document.getElementById("purpose").value,
-  mobile: document.getElementById("mobile").value,
-  address: document.getElementById("address").value,
-
-  inTime: "",
-  outTime: "",
-  totalTime: "",
-
-  status: "IN",
-
-  photo: photoData,
-  sign: document.getElementById("signPad").toDataURL("image/png")
-})
-  })
-  .then(res => res.text())
-  .then(res => {
-
-    document.getElementById("loader").style.display = "none";
-    document.getElementById("success").style.display = "block";
-    
-    setProgress(5);
-    
-  confetti({
-  particleCount:180,
-  spread:90,
-  origin:{y:0.6}
-   });
-
-    setTimeout(()=>location.reload(),3000);
-  })
-  .catch(err=>{
-    alert("Save failed");
-  });
-}
-  
-  let canvas = document.getElementById("signPad");
-  let ctx = canvas.getContext("2d");
-  function resizeCanvas(){
-
-  const ratio = Math.max(window.devicePixelRatio || 1,1);
-
-  canvas.width = canvas.offsetWidth * ratio;
-  canvas.height = canvas.offsetHeight * ratio;
-
-  canvas.getContext("2d").scale(ratio,ratio);
-
-  ctx.lineWidth = 2.5;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-}
-
-let drawing = false;
-let hasSigned = false;
-
-// Better stroke style
-ctx.lineWidth = 2.5;
-ctx.lineCap = "round";
-ctx.lineJoin = "round";
-
-// Get position helper
-function getPosition(e) {
-  let rect = canvas.getBoundingClientRect();
-
-  if (e.touches) {
-    return {
-      x: e.touches[0].clientX - rect.left,
-      y: e.touches[0].clientY - rect.top
-    };
-  } else {
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    };
-  }
-}
-
-// START DRAW
-function startDrawing(e) {
-  document.getElementById('signGuide').style.display='none';
-  e.preventDefault();
-  drawing = true;
-
-  let pos = getPosition(e);
-  ctx.beginPath();
-  ctx.moveTo(pos.x, pos.y);
-}
-
-// DRAW
-function draw(e){
-
-  if(!drawing) return;
-
-  e.preventDefault();
-
-  let pos = getPosition(e);
-
-  ctx.lineTo(pos.x,pos.y);
-  ctx.stroke();
-}
-
-// STOP DRAW
-function stopDrawing(e) {
-  drawing = false;
-  ctx.beginPath();
-}
-
-// Touch events
-canvas.addEventListener("touchstart", startDrawing);
-canvas.addEventListener("touchmove", draw);
-canvas.addEventListener("touchend", stopDrawing);
-
-// Mouse events (NEW)
-canvas.addEventListener("mousedown", startDrawing);
-canvas.addEventListener("mousemove", draw);
-canvas.addEventListener("mouseup", stopDrawing);
-canvas.addEventListener("mouseleave", stopDrawing);
-
-// Clear signature
-function clearSign() {
-  document.getElementById('signGuide').style.display='block';
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.beginPath();
-  hasSigned = false;
-}
-  function setProgress(step){
-
-  let widths={
-  1:'20%',
-  2:'40%',
-  3:'60%',
-  4:'80%',
-  5:'100%'
+actionBtn.onclick = () => {
+  sendAttendance(currentMode);
 };
 
-  document.getElementById('progressBar').style.width=widths[step];
+fetch("https://script.google.com/macros/s/AKfycbzyduPQRo4dyp6Q0lCrw-LIS0bNb6m2wZC_H1DxxxNkCvXyBwWY5RxZlcotWh9fYAdt/exec?type=staff&key=Z1TECH123")
+.then(res => res.json())
+.then(data => {
+
+  employees = data.slice(1).map(row => ({
+  id: row[0],
+  name: row[1],
+  dept: row[2],
+  photo: row[3]
+}));
+});
+
+
+// STEP CONTROL
+function show(id){
+  document.querySelectorAll(".card").forEach(d=>d.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
 }
 
+// TYPEWRITER
+let txt="Welcome to Z1Tech";
+let i=0;
+function type(){
+  if(i<txt.length){
+    welcome.innerHTML+=txt.charAt(i);
+    i++;
+    setTimeout(type,60);
+  } else {
+    setTimeout(()=>show("step2"),500);
+  }
+}
+type();
+
+// SEARCH
+function filterNames(){
+
+  let input = document.getElementById("name");
+  let val = (input.value || "").toLowerCase();
+  let box = document.getElementById("suggestions");
+
+  box.innerHTML = "";
+
+  if(!val) return;
+
+  employees
+  .filter(e => e.name && e.name.toLowerCase().includes(val))
+  .forEach(e => {
+
+    let div = document.createElement("div");
+
+    div.className = "s-item";
+
+    div.innerHTML = `
+      <div style="
+        display:flex;
+        align-items:center;
+        gap:12px;
+      ">
+
+        <img src="${e.photo}"
+          style="
+            width:42px;
+            height:42px;
+            border-radius:50%;
+            object-fit:cover;
+            border:2px solid #22c55e;
+          ">
+
+        <div>
+          <div style="font-weight:600">${e.name}</div>
+          <div style="font-size:12px;opacity:.7">
+            ${e.dept || ""}
+          </div>
+        </div>
+
+      </div>
+    `;
+
+    div.onclick = async () => {
+
+      name.value = e.name;
+      name.readOnly = true;
+      name.disabled = true;
+
+      selectedEmployee = e;
+
+      showLoader();
+
+      try{
+
+        const img = await faceapi.fetchImage(e.photo);
+
+        const refDetection = await faceapi
+        .detectSingleFace(
+          img,
+          new faceapi.TinyFaceDetectorOptions()
+        )
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+        if(refDetection){
+          employeeDescriptor = refDetection.descriptor;
+        }else{
+          showToast("Stored face invalid ❌");
+          hideLoader();
+          return;
+        }
+
+      }catch(err){
+
+        console.log(err);
+
+        showToast("Face profile load failed ❌");
+
+        hideLoader();
+
+        return;
+      }
+
+      hideLoader();
+
+      box.innerHTML = "";
+
+      setMode("in");
+
+      show("step3");
+
+      startCamera();
+    };
+
+    box.appendChild(div);
+
+  });
+
+}
+// CAPTURE
+function capture(){
+
+  const video = document.getElementById("cam");
+
+  const size = 320;
+
+  const canvas = document.createElement("canvas");
+
+  canvas.width = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext("2d");
+
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+
+  const cropSize = Math.min(vw, vh);
+
+  const sx = (vw - cropSize) / 2;
+  const sy = (vh - cropSize) / 2;
+
+  ctx.translate(size,0);
+  ctx.scale(-1,1);
+
+  ctx.drawImage(
+    video,
+    sx,
+    sy,
+    cropSize,
+    cropSize,
+    0,
+    0,
+    size,
+    size
+  );
+
+  return canvas.toDataURL("image/jpeg",0.55);
+}
+
+// CAMERA
+async function startCamera(){
+
+  if(cam.srcObject){
+    cam.srcObject.getTracks().forEach(t=>t.stop());
+  }
+
+  try{
+
+    let stream = await navigator.mediaDevices.getUserMedia({
+      video:{
+        facingMode:"user",
+        width:{ideal:1280},
+        height:{ideal:1280}
+      }
+    });
+
+    cam.srcObject = stream;
+
+    await cam.play();
+
+    console.log("✅ Camera Ready");
+
+  }catch(e){
+
+    console.log(e);
+
+    showToast("Camera permission denied ❌");
+  }
+}
+
+// LOADER
+function showLoader(){
+  loader.style.display = "flex";
+}
+
+function hideLoader(){
+  loader.style.display = "none";
+}
+
+// TIMER
+let startTime,interval;
+function startTimer(){
+
+  if(interval) clearInterval(interval);
+
+  startTime = new Date();
+
+  interval = setInterval(()=>{
+
+    let diff = Math.floor((new Date()-startTime)/1000);
+
+    let m = Math.floor(diff/60);
+
+    let s = diff%60;
+
+    timer.innerText = "⏱ "+m+"m "+s+"s";
+
+  },1000);
+}
+// LOGIN / LOGOUT
+async function sendAttendance(type){
+
+  showLoader();
+
+  if(!cam.srcObject){
+    hideLoader();
+    showToast("Camera not started ❌");
+    return;
+  }
+
+  if(!selectedEmployee){
+    hideLoader();
+    showToast("Please select your name first ❌");
+    return;
+  }
+
+  // photo capture
+  let photo = capture();
+
+  // face match
+  let match = await faceMatch(selectedEmployee.photo);
+
+  if(!match){
+    hideLoader();
+    showToast("Face Not Matched ❌");
+    return;
+  }
+
+  // check states
+  if(type === "in" && hasCheckedIn){
+    hideLoader();
+    showToast("Already checked in ❌");
+    return;
+  }
+
+  if(type === "out" && !hasCheckedIn){
+    hideLoader();
+    showToast("You have not checked in ❌");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+
+    async (pos) => {
+
+      let dist = getDistance(
+        pos.coords.latitude,
+        pos.coords.longitude,
+        OFFICE_LAT,
+        OFFICE_LNG
+      );
+
+      if(dist > MAX_RADIUS){
+        hideLoader();
+        showToast("You are outside office area ❌");
+        return;
+      }
+
+      let data = {
+        key: "Z1TECH123",
+        type: "attendance",
+        action: type,
+        name: selectedEmployee.name,
+        dept: selectedEmployee.dept,
+        photo: photo,
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+      };
+
+      try{
+
+        let res = await fetch(
+          "https://script.google.com/macros/s/AKfycbzyduPQRo4dyp6Q0lCrw-LIS0bNb6m2wZC_H1DxxxNkCvXyBwWY5RxZlcotWh9fYAdt/exec",
+          {
+            method:"POST",
+            headers:{
+                    "Content-Type":"text/plain;charset=utf-8"
+                     },
+                     body: JSON.stringify(data)
+          }
+        );
+
+        let txt = await res.text();
+
+        console.log(txt);
+
+        if(!res.ok){
+          hideLoader();
+          showToast("Server error ❌");
+          return;
+        }
+
+      }catch(e){
+
+        console.log(e);
+
+        hideLoader();
+        showToast("Network error ❌");
+        return;
+      }
+
+      hideLoader();
+
+      // stop camera AFTER request complete
+      setTimeout(()=>{
+
+        if(cam.srcObject){
+          cam.srcObject.getTracks().forEach(t=>t.stop());
+        }
+
+      },500);
+
+      showToast(type.toUpperCase() + " SUCCESSFULLY ✅");
+
+      // OUT
+      if(type === "out"){
+
+  hasCheckedIn = false;
+
+  clearInterval(interval);
+
+  show("step2");
+
+  name.value = "";
+
+  name.disabled = false;
+
+  name.readOnly = false;
+}
+
+      // IN
+      if(type === "in"){
+
+        hasCheckedIn = true;
+
+        show("step4");
+
+        startTimer();
+      }
+
+    },
+
+    (err) => {
+
+      console.log(err);
+
+      hideLoader();
+
+      showToast("Location permission required ❌");
+    }
+
+  );
+}
+
+async function faceMatch(employeePhoto){
+
+   if(!modelsLoaded){
+    showToast("Models is loading... ⏳");
+    return false;
+  }
+
+  const video = document.getElementById("cam");
+
+  const detection = await faceapi.detectSingleFace(
+    video,
+    new faceapi.TinyFaceDetectorOptions()
+  ).withFaceLandmarks().withFaceDescriptor();
+
+  if(!employeePhoto){
+  showToast("No stored photo ❌");
+  return false;
+}
+
+  if(!detection){
+    showToast("No face detected ❌");
+    return false;
+  }
+
+  if(!employeeDescriptor){
+  showToast("Face profile not loaded ❌");
+  return false;
+}
+
+const distance = faceapi.euclideanDistance(
+  detection.descriptor,
+  employeeDescriptor
+);
+
+  console.log("Face distance:", distance);
+
+  return distance < 0.5;
+}
+
+async function loadModels(){
+
+  const MODEL_URL = "https://justadudewhohacks.github.io/face-api.js/models";
+
+  await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+  await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+  await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+console.log("✅ Models Loaded");
+}
+
+let modelsLoaded = false;
+window.onload = async () => {
+  showLoader();
+  await loadModels();
+   modelsLoaded = true;
+  hideLoader();
+};
+
+const OFFICE_LAT = 28.499194530261953;   // change this
+const OFFICE_LNG = 77.08088784902715;   // change this
+const MAX_RADIUS = 150;       // meters
+
+function getDistance(lat1, lon1, lat2, lon2){
+
+  const R = 6371e3;
+
+  const φ1 = lat1 * Math.PI/180;
+  const φ2 = lat2 * Math.PI/180;
+
+  const Δφ = (lat2-lat1) * Math.PI/180;
+  const Δλ = (lon2-lon1) * Math.PI/180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+}
+
+function confirmLogout(){
+
+  if(confirm("Are you sure you want to logout?")){
+
+    setMode("out");
+
+    show("step3");
+
+    startCamera();
+  }
+}
+
+async function autoDetectAndSend(){
+
+  let match = await faceMatch(selectedEmployee.photo);
+
+  if(match){
+    sendAttendance(currentMode);
+  } else {
+
+    showToast("Face not detected. Try manually 👇");
+
+    actionBtn.disabled = false;
+    actionBtn.style.opacity = "1";
+  }
+}
+
+  function showToast(msg, color="green"){
+
+  let t = document.getElementById("toast");
+  t.innerText = msg;
+  t.style.background = color;
+  t.classList.add("show");
+
+  setTimeout(()=>{
+    t.classList.remove("show");
+  },3000);
+}
+
+  function setMode(mode){
+
+  currentMode = mode;
+
+  if(mode === "in"){
+    actionBtn.innerText = "📸 IN";
+    actionBtn.className = "login";
+  }
+
+  if(mode === "out"){
+    actionBtn.innerText = "🔴 OUT";
+    actionBtn.className = "logout";
+  }
+}
 </script>
 
 </body>
