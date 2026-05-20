@@ -302,13 +302,13 @@ fetch("https://script.google.com/a/macros/z1tech.com/s/AKfycbyrfqxx5f20yUAQWWEf8
 });
 
   // LOAD TOPPER
-fetch("https://script.google.com/a/macros/z1tech.com/s/AKfycbyrfqxx5f20yUAQWWEf8ittksQQmEeFqt9dttcQ7fDZqxB1mvrmpEEsJZCDxsudTAcGwg/exec?type=Staffattendance&key=Z1TECH123")
+fetch("https://script.google.com/a/macros/z1tech.com/s/AKfycbyrfqxx5f20yUAQWWEf8ittksQQmEeFqt9dttcQ7fDZqxB1mvrmpEEsJZCDxsudTAcGwg/exec?type=dashboard&key=Z1TECH123")
 .then(res=>res.json())
 .then(data=>{
 
   let topper = data.monthlyTopper || {};
 
-  if(!topper.name) return;
+  if(!topper || !topper.name) return;
 
   document.getElementById("topperCard").classList.remove("hidden");
 
@@ -357,7 +357,12 @@ fetch("https://script.google.com/a/macros/z1tech.com/s/AKfycbyrfqxx5f20yUAQWWEf8
 
 // STEP CONTROL
 function show(id){
-  document.querySelectorAll(".card").forEach(d=>d.classList.add("hidden"));
+
+  // hide only steps
+  ["step2","step3","step4"].forEach(step=>{
+    document.getElementById(step).classList.add("hidden");
+  });
+
   document.getElementById(id).classList.remove("hidden");
 }
 
