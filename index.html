@@ -247,10 +247,63 @@ button:hover{
 
 </div>
 
+  <!-- STAFF TYPE -->
+<div id="staffTypeBox"
+class="card"
+style="
+display:flex;
+gap:10px;
+padding:8px;
+">
+
+<button id="permanentBtn"
+class="login"
+onclick="setStaffType('permanent')">
+Permanent
+</button>
+
+<button id="temporaryBtn"
+onclick="setStaffType('temporary')"
+style="
+background:#334155;
+color:white;
+">
+Temporary
+</button>
+
+</div>
+
 <!-- SEARCH -->
+<!-- SEARCH / TEMP -->
 <div id="step2" class="card hidden">
-  <input id="name" placeholder="Search your name..." onkeyup="filterNames()">
-  <div id="suggestions"></div>
+
+<div id="permanentFields">
+
+<input id="name"
+placeholder="Search your name..."
+onkeyup="filterNames()">
+
+<div id="suggestions"></div>
+
+</div>
+
+<div id="temporaryFields"
+class="hidden">
+
+<input id="tempName"
+placeholder="Temporary Staff Name"
+style="margin-bottom:10px;">
+
+<input id="tempDept"
+placeholder="Department">
+
+<button class="login"
+onclick="continueTemporary()">
+Continue
+</button>
+
+</div>
+
 </div>
 
 <!-- CAMERA -->
@@ -272,7 +325,7 @@ button:hover{
 <div id="toast"></div>
   
 <script>
-
+let staffType = "permanent";
 let employees = [];
 let hasCheckedIn = false;
 let loader = document.getElementById("loader");
@@ -603,13 +656,20 @@ async function sendAttendance(type){
   let photo = capture();
 
   // face match
-  let match = await faceMatch(selectedEmployee.photo);
+ if(staffType === "permanent"){
+
+  let match =
+  await faceMatch(selectedEmployee.photo);
 
   if(!match){
+
     hideLoader();
+
     showToast("Face Not Matched ❌");
+
     return;
   }
+}
 
   // check states
   if(type === "in" && hasCheckedIn){
@@ -711,6 +771,9 @@ async function sendAttendance(type){
   name.disabled = false;
 
   name.readOnly = false;
+
+document.getElementById("tempName").value = "";
+document.getElementById("tempDept").value = "";
 }
 
       // IN
@@ -869,6 +932,74 @@ async function autoDetectAndSend(){
     actionBtn.innerText = "🔴 OUT";
     actionBtn.className = "logout";
   }
+}
+
+  function setStaffType(type){
+
+  staffType = type;
+
+  if(type === "permanent"){
+
+    permanentBtn.style.background =
+    "linear-gradient(135deg,#22c55e,#4ade80)";
+
+    temporaryBtn.style.background =
+    "#334155";
+
+    document
+    .getElementById("permanentFields")
+    .classList.remove("hidden");
+
+    document
+    .getElementById("temporaryFields")
+    .classList.add("hidden");
+  }
+
+  if(type === "temporary"){
+
+    temporaryBtn.style.background =
+    "linear-gradient(135deg,#22c55e,#4ade80)";
+
+    permanentBtn.style.background =
+    "#334155";
+
+    document
+    .getElementById("temporaryFields")
+    .classList.remove("hidden");
+
+    document
+    .getElementById("permanentFields")
+    .classList.add("hidden");
+  }
+}
+
+  function continueTemporary(){
+
+  let tName =
+  document.getElementById("tempName").value;
+
+  let tDept =
+  document.getElementById("tempDept").value;
+
+  if(!tName || !tDept){
+
+    showToast("Fill all fields ❌");
+
+    return;
+  }
+
+  selectedEmployee = {
+
+    name: tName,
+    dept: tDept,
+    photo: ""
+  };
+
+  setMode("in");
+
+  show("step3");
+
+  startCamera();
 }
 </script>
 
