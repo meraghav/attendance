@@ -28,6 +28,7 @@ body{
   padding:20px;
   margin-top:20px;
   box-shadow:0 10px 40px rgba(0,0,0,0.3);
+  position:relative;
 }
 
 .hidden{
@@ -111,6 +112,8 @@ button{
   margin-top:15px;
   cursor:pointer;
   transition:0.2s;
+  position:relative;
+  z-index:20;
 }
 
 .login{
@@ -355,6 +358,7 @@ let name = document.getElementById("name");
 let selectedEmployee = null;
 let currentMode = "in"; // or "out"
 let employeeDescriptor = null;
+let descriptorMap = {};
 
 const actionBtn = document.getElementById("actionBtn");
 
@@ -372,10 +376,11 @@ fetch("https://script.google.com/a/macros/z1tech.com/s/AKfycbyrfqxx5f20yUAQWWEf8
   dept: row[2],
   photo: row[3]
 }));
+  preloadDescriptors();
 });
 
   // LOAD TOPPER
-fetch("https://script.google.com/a/macros/z1tech.com/s/AKfycbyrfqxx5f20yUAQWWEf8ittksQQmEeFqt9dttcQ7fDZqxB1mvrmpEEsJZCDxsudTAcGwg/exec?type=dashboard&key=Z1TECH123")
+fetch("https://script.google.com/a/macros/z1tech.com/s/AKfycbyrfqxx5f20yUAQWWEf8ittksQQmEeFqt9dttcQ7fDZqxB1mvrmpEEsJZCDxsudTAcGwg/exec?type=topper&key=Z1TECH123")
 .then(res=>res.json())
 .then(data=>{
 
@@ -506,40 +511,15 @@ function filterNames(){
 
       selectedEmployee = e;
 
-      showLoader();
+      employeeDescriptor =
+      descriptorMap[e.name];
 
-      try{
+      if(!employeeDescriptor){
 
-        const img = await faceapi.fetchImage(e.photo);
+       showToast("Face loading ⏳");
 
-        const refDetection = await faceapi
-        .detectSingleFace(
-          img,
-          new faceapi.TinyFaceDetectorOptions()
-        )
-        .withFaceLandmarks()
-        .withFaceDescriptor();
-
-        if(refDetection){
-          employeeDescriptor = refDetection.descriptor;
-        }else{
-          showToast("Stored face invalid ❌");
-          hideLoader();
-          return;
-        }
-
-      }catch(err){
-
-        console.log(err);
-
-        showToast("Face profile load failed ❌");
-
-        hideLoader();
-
-        return;
-      }
-
-      hideLoader();
+       return;
+     }
 
       box.innerHTML = "";
 
@@ -1021,6 +1001,42 @@ async function autoDetectAndSend(){
   show("step3");
 
   startCamera();
+}
+
+  async function preloadDescriptors(){
+
+  for(const e of employees){
+
+    try{
+
+      const img =
+      await faceapi.fetchImage(e.photo);
+
+      const detection =
+      await faceapi
+      .detectSingleFace(
+        img,
+        new faceapi.TinyFaceDetectorOptions()
+      )
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+      if(detection){
+
+        descriptorMap[e.name] =
+        detection.descriptor;
+      }
+
+    }catch(err){
+
+      console.log(
+        "Descriptor preload failed:",
+        e.name
+      );
+    }
+  }
+
+  console.log("✅ Descriptors Ready");
 }
 </script>
 
