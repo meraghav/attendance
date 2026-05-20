@@ -3,6 +3,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
 body{
@@ -175,6 +176,133 @@ button:hover{
 #toast.show{
   opacity:1;
 }
+
+  /* TOPPER CARD */
+#topperCard{
+  position:relative;
+  overflow:hidden;
+
+  border:1px solid rgba(255,215,0,0.4);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,215,0,0.08),
+      rgba(255,255,255,0.05)
+    );
+
+  animation:goldGlow 2.5s ease infinite;
+}
+
+/* GOLD GLOW */
+@keyframes goldGlow{
+
+  0%{
+    box-shadow:0 0 15px rgba(255,215,0,0.15);
+  }
+
+  50%{
+    box-shadow:0 0 35px rgba(255,215,0,0.45);
+  }
+
+  100%{
+    box-shadow:0 0 15px rgba(255,215,0,0.15);
+  }
+}
+
+/* SHINE EFFECT */
+.shine{
+  position:absolute;
+  top:0;
+  left:-120%;
+
+  width:60%;
+  height:100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,0.25),
+      transparent
+    );
+
+  transform:skewX(-20deg);
+
+  animation:shineMove 4s linear infinite;
+}
+
+@keyframes shineMove{
+  100%{
+    left:150%;
+  }
+}
+
+/* CROWN */
+.crown{
+  position:absolute;
+  top:-12px;
+  right:-5px;
+
+  font-size:28px;
+
+  animation:floatCrown 2s ease infinite;
+}
+
+@keyframes floatCrown{
+
+  0%{
+    transform:translateY(0);
+  }
+
+  50%{
+    transform:translateY(-4px);
+  }
+
+  100%{
+    transform:translateY(0);
+  }
+}
+
+/* TEXT */
+.topperTag{
+  font-size:13px;
+  color:#facc15;
+  margin-bottom:5px;
+  font-weight:600;
+}
+
+.topperName{
+  font-size:24px;
+  font-weight:700;
+}
+
+.topperDept{
+  font-size:14px;
+  opacity:.8;
+  margin-top:3px;
+}
+
+.streak{
+  margin-top:8px;
+  font-size:13px;
+  color:#fb923c;
+  font-weight:600;
+}
+
+.rank{
+  margin-top:4px;
+  font-size:13px;
+  color:#facc15;
+  font-weight:600;
+}
+
+.quote{
+  margin-top:18px;
+  font-size:13px;
+  opacity:.75;
+  font-style:italic;
+}
 </style>
 </head>
 
@@ -187,6 +315,120 @@ button:hover{
 <div class="container">
 
 <h2 id="welcome"></h2>
+
+  <!-- TOPPER CARD -->
+<div id="topperCard" class="card hidden">
+
+  <div style="
+    display:flex;
+    align-items:center;
+    gap:16px;
+  ">
+
+    <img id="topperImg"
+      src=""
+      style="
+        width:80px;
+        height:80px;
+        border-radius:50%;
+        object-fit:cover;
+        border:3px solid gold;
+        box-shadow:0 0 25px rgba(255,215,0,0.5);
+      ">
+
+    <div style="text-align:left;flex:1">
+
+      <div style="
+        font-size:13px;
+        opacity:.7;
+        margin-bottom:4px;
+      ">
+        ⭐ Monthly Top Performer
+      </div>
+
+      <div id="topperName"
+        style="
+          font-size:22px;
+          font-weight:700;
+        ">
+      </div>
+
+      <div id="topperDept"
+        style="
+          font-size:14px;
+          opacity:.8;
+          margin-top:4px;
+        ">
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- TOPPER CARD -->
+<div id="topperCard" class="card hidden">
+
+  <div class="shine"></div>
+
+  <div style="
+    display:flex;
+    align-items:center;
+    gap:16px;
+  ">
+
+    <!-- PHOTO -->
+    <div style="position:relative">
+
+      <img id="topperImg"
+        src=""
+        style="
+          width:90px;
+          height:90px;
+          border-radius:50%;
+          object-fit:cover;
+          border:4px solid gold;
+        ">
+
+      <!-- CROWN -->
+      <div class="crown">
+        👑
+      </div>
+
+    </div>
+
+    <!-- DETAILS -->
+    <div style="text-align:left;flex:1">
+
+      <div class="topperTag">
+        🏆 Employee of the Month
+      </div>
+
+      <div id="topperName" class="topperName"></div>
+
+      <div id="topperDept" class="topperDept"></div>
+
+      <!-- STREAK -->
+      <div class="streak">
+        🔥 28 Days Streak
+      </div>
+
+      <!-- RANK -->
+      <div class="rank">
+        ⭐ Rank #1 This Month
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- QUOTE -->
+  <div class="quote">
+    “Success is the sum of small efforts repeated daily.”
+  </div>
+
+</div>
 
 <!-- SEARCH -->
 <div id="step2" class="card hidden">
@@ -233,6 +475,15 @@ actionBtn.onclick = () => {
 fetch("https://script.google.com/a/macros/z1tech.com/s/AKfycbyrfqxx5f20yUAQWWEf8ittksQQmEeFqt9dttcQ7fDZqxB1mvrmpEEsJZCDxsudTAcGwg/exec?type=staff&key=Z1TECH123")
 .then(res => res.json())
 .then(data => {
+
+  // TOPPER DATA
+let topper = data[1]; // first employee
+
+document.getElementById("topperImg").src = topper[3];
+document.getElementById("topperName").innerText = topper[1];
+document.getElementById("topperDept").innerText = topper[2];
+
+document.getElementById("topperCard").classList.remove("hidden");
 
   employees = data.slice(1).map(row => ({
   id: row[0],
