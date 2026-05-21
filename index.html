@@ -163,18 +163,28 @@ button:hover{
   100%{transform:rotate(360deg)}
 }
 
-  #toast{
+#toast{
   position:fixed;
-  bottom:30px;
-  left:50%;
-  transform:translateX(-50%);
+  top:20px;
+  right:20px;
+  left:auto;
+  bottom:auto;
+
+  transform:none;
+
   background:#22c55e;
   color:white;
   padding:14px 20px;
   border-radius:12px;
+
   opacity:0;
   transition:0.3s;
+
+  z-index:9999;
+
+  pointer-events:none;
 }
+
 #toast.show{
   opacity:1;
 }
