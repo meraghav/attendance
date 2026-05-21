@@ -1,4 +1,3 @@
-<script>
 let staffType = "permanent";
 let employees = [];
 let hasCheckedIn = false;
@@ -725,4 +724,3 @@ async function autoDetectAndSend(){
 
   console.log("✅ Descriptors Ready");
 }
-</script>
