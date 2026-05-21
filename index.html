@@ -729,6 +729,42 @@ async function sendAttendance(type){
 
         console.log(txt);
 
+        if(txt === "ALREADY_IN"){
+
+  hideLoader();
+
+  showToast("Already Checked In ❌");
+
+  return;
+}
+
+if(txt === "ALREADY_COMPLETED"){
+
+  hideLoader();
+
+  showToast("Attendance Completed ✅");
+
+  return;
+}
+
+if(txt === "NO_IN_FOUND"){
+
+  hideLoader();
+
+  showToast("No Check-In Found ❌");
+
+  return;
+}
+
+if(txt === "ALREADY_OUT"){
+
+  hideLoader();
+
+  showToast("Already Checked Out ❌");
+
+  return;
+}
+
         if(!res.ok){
           hideLoader();
           showToast("Server error ❌");
