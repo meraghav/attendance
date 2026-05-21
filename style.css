@@ -182,7 +182,7 @@ button:hover{
   opacity:1;
 }
 
-  /* TOPPER CARD */
+/* TOPPER CARD */
 #topperCard{
   position:relative;
   overflow:hidden;
@@ -232,4 +232,13 @@ button:hover{
   font-size:12px;
   opacity:.8;
   margin-top:8px;
+}
+
+#subHeading{
+  margin-top:10px;
+  font-size:14px;
+  color:#94a3b8;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:2px;
 }
