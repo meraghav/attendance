@@ -384,7 +384,7 @@ fetch("https://script.google.com/a/macros/z1tech.com/s/AKfycbyrfqxx5f20yUAQWWEf8
 .then(res=>res.json())
 .then(data=>{
 
-  let topper = data.monthlyTopper || {};
+ let topper = data || {};
 
   if(!topper || !topper.name) return;
 
