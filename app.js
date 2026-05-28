@@ -161,9 +161,12 @@ function filterNames(){
 
       selectedEmployee = e;
 
-      // CHECK ACTIVE ATTENDANCE
+// CHECK ACTIVE ATTENDANCE
 let existing =
-await checkExistingAttendance(e.name);
+await checkExistingAttendance(
+  e.name,
+  e.mobile || ""
+);
 
 if(existing.active){
 
@@ -409,7 +412,9 @@ async function sendAttendance(type){
         dept: selectedEmployee.dept,
         photo: photo,
         lat: pos.coords.latitude,
-        lng: pos.coords.longitude
+        lng: pos.coords.longitude,
+        mobile:
+        selectedEmployee.mobile || ""
       };
 
       try{
@@ -856,6 +861,10 @@ async function checkExistingAttendance(name){
 
       "https://script.google.com/macros/s/AKfycbyrfqxx5f20yUAQWWEf8ittksQQmEeFqt9dttcQ7fDZqxB1mvrmpEEsJZCDxsudTAcGwg/exec?type=checkAttendance&name="
       + encodeURIComponent(name)
+      + "&mobile="
+      + encodeURIComponent(
+        mobile || ""
+       )
       + "&key=Z1TECH123"
 
     );
