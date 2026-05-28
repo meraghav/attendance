@@ -499,6 +499,9 @@ if(txt === "ALREADY_OUT"){
 
   hasCheckedIn = false;
 
+  // CLEAR STATE
+  localStorage.removeItem("attendanceUser");
+
   clearInterval(interval);
 
   show("step2");
@@ -513,16 +516,25 @@ document.getElementById("tempName").value = "";
 document.getElementById("tempDept").value = "";
 }
 
-      // IN
-      if(type === "in"){
+  // IN
+  if(type === "in"){
 
-        hasCheckedIn = true;
+  hasCheckedIn = true;
 
-        show("step4");
+  // SAVE STATE
+  localStorage.setItem(
+    "attendanceUser",
+    JSON.stringify({
+      name:selectedEmployee.name,
+      dept:selectedEmployee.dept,
+      checkInTime:new Date().toISOString()
+    })
+  );
 
-        startTimer();
-      }
+  show("step4");
 
+  startTimer();
+}
     },
 
     (err) => {
@@ -588,10 +600,17 @@ console.log("✅ Models Loaded");
 
 let modelsLoaded = false;
 window.onload = async () => {
+
   showLoader();
+
   await loadModels();
-   modelsLoaded = true;
+
+  modelsLoaded = true;
+
   hideLoader();
+
+  // RESTORE LOGIN
+  restoreAttendanceState();
 };
 
 const OFFICE_LAT = 28.499194530261953;  
@@ -775,6 +794,55 @@ async function autoDetectAndSend(){
   console.log("✅ Descriptors Ready");
 }
 
+function restoreAttendanceState(){
+
+  let saved =
+  localStorage.getItem("attendanceUser");
+
+  if(!saved) return;
+
+  let user = JSON.parse(saved);
+
+  hasCheckedIn = true;
+
+  selectedEmployee = {
+    name:user.name,
+    dept:user.dept
+  };
+
+  // TIMER RESUME
+  let start =
+  new Date(user.checkInTime);
+
+  if(interval) clearInterval(interval);
+
+  interval = setInterval(()=>{
+
+    let diff =
+    Math.floor((new Date()-start)/1000);
+
+    let h =
+    Math.floor(diff/3600);
+
+    let m =
+    Math.floor((diff%3600)/60);
+
+    let s =
+    diff%60;
+
+    timer.innerHTML =
+    `⏱ ${h}h ${m}m ${s}s`;
+
+  },1000);
+
+  // DIRECT LOGOUT SCREEN
+  show("step4");
+
+  showToast(
+    "Welcome Back " + user.name + " 👋"
+  );
+}
+
 
 async function checkExistingAttendance(name){
 
@@ -799,3 +867,5 @@ async function checkExistingAttendance(name){
     };
   }
 }
+
+
