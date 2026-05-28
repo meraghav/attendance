@@ -100,7 +100,7 @@ let txt="Welcome to Z1Tech";
 let i=0;
 function type(){
 
-  if(i<txt.length){
+  if(i < txt.length){
 
     welcome.innerHTML += txt.charAt(i);
 
@@ -108,25 +108,22 @@ function type(){
 
     setTimeout(type,60);
 
-  }else{
+  } else {
 
-    // CHECK SAVED SESSION
+    // CHECK IF USER ALREADY LOGGED IN
     let saved =
     localStorage.getItem("attendanceUser");
 
-    // AGAR LOGIN ACTIVE HAI
-    if(saved){
-
-      restoreAttendanceState();
-
-    }else{
+    // ONLY SHOW MAIN PAGE
+    // IF NO ACTIVE SESSION
+    if(!saved){
 
       setTimeout(()=>{
-
         show("step2");
-
       },500);
+
     }
+
   }
 }
 type();
