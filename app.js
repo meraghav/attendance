@@ -24,7 +24,8 @@ fetch("https://script.google.com/a/macros/z1tech.com/s/AKfycbyrfqxx5f20yUAQWWEf8
   id: row[0],
   name: row[1],
   dept: row[2],
-  photo: row[3]
+  photo: row[3],
+  mobile: row[4] || ""
 }));
   preloadDescriptors();
 });
@@ -98,12 +99,34 @@ function show(id){
 let txt="Welcome to Z1Tech";
 let i=0;
 function type(){
+
   if(i<txt.length){
-    welcome.innerHTML+=txt.charAt(i);
+
+    welcome.innerHTML += txt.charAt(i);
+
     i++;
+
     setTimeout(type,60);
-  } else {
-    setTimeout(()=>show("step2"),500);
+
+  }else{
+
+    // CHECK SAVED SESSION
+    let saved =
+    localStorage.getItem("attendanceUser");
+
+    // AGAR LOGIN ACTIVE HAI
+    if(saved){
+
+      restoreAttendanceState();
+
+    }else{
+
+      setTimeout(()=>{
+
+        show("step2");
+
+      },500);
+    }
   }
 }
 type();
@@ -174,7 +197,8 @@ if(existing.active){
 
   selectedEmployee = {
     name:existing.name,
-    dept:existing.dept
+    dept:existing.dept,
+    mobile:user.mobile || ""
   };
 
   // DIRECT LOGOUT MODE
@@ -532,6 +556,7 @@ document.getElementById("tempDept").value = "";
     JSON.stringify({
       name:selectedEmployee.name,
       dept:selectedEmployee.dept,
+      mobile:selectedEmployee.mobile || "",
       checkInTime:new Date().toISOString()
     })
   );
@@ -816,7 +841,8 @@ function restoreAttendanceState(){
 
   selectedEmployee = {
     name:user.name,
-    dept:user.dept
+    dept:user.dept,
+    mobile:user.mobile || ""
   };
 
   // TIMER RESUME
@@ -844,6 +870,8 @@ function restoreAttendanceState(){
 
   },1000);
 
+  setMode("out");
+
   // DIRECT LOGOUT SCREEN
   show("step4");
 
@@ -863,7 +891,7 @@ async function checkExistingAttendance(name){
       + encodeURIComponent(name)
       + "&mobile="
       + encodeURIComponent(
-        mobile || ""
+        selectedEmployee?.mobile || ""
        )
       + "&key=Z1TECH123"
 
