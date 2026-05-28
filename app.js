@@ -161,6 +161,56 @@ function filterNames(){
 
       selectedEmployee = e;
 
+      // CHECK ACTIVE ATTENDANCE
+let existing =
+await checkExistingAttendance(e.name);
+
+if(existing.active){
+
+  hasCheckedIn = true;
+
+  selectedEmployee = {
+    name:existing.name,
+    dept:existing.dept
+  };
+
+  // DIRECT LOGOUT MODE
+  setMode("out");
+
+  show("step4");
+
+  // TIMER RESTORE
+  let start =
+  new Date(existing.inTime);
+
+  if(interval) clearInterval(interval);
+
+  interval = setInterval(()=>{
+
+    let diff =
+    Math.floor((new Date()-start)/1000);
+
+    let h =
+    Math.floor(diff/3600);
+
+    let m =
+    Math.floor((diff%3600)/60);
+
+    let s =
+    diff%60;
+
+    timer.innerHTML =
+    `⏱ ${h}h ${m}m ${s}s`;
+
+  },1000);
+
+  showToast(
+    "Active attendance found ✅"
+  );
+
+  return;
+}
+
       employeeDescriptor =
       descriptorMap[e.name];
 
@@ -723,4 +773,29 @@ async function autoDetectAndSend(){
   }
 
   console.log("✅ Descriptors Ready");
+}
+
+
+async function checkExistingAttendance(name){
+
+  try{
+
+    let res = await fetch(
+
+      "https://script.google.com/macros/s/AKfycbyrfqxx5f20yUAQWWEf8ittksQQmEeFqt9dttcQ7fDZqxB1mvrmpEEsJZCDxsudTAcGwg/exec?type=checkAttendance&name="
+      + encodeURIComponent(name)
+      + "&key=Z1TECH123"
+
+    );
+
+    return await res.json();
+
+  }catch(e){
+
+    console.log(e);
+
+    return {
+      active:false
+    };
+  }
 }
