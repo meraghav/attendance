@@ -737,7 +737,10 @@ async function autoDetectAndSend(){
   let tDept =
   document.getElementById("tempDept").value;
 
-  if(!tName || !tDept){
+  let tMobile =
+  document.getElementById("tempMobile").value;
+
+  if(!tName || !tDept || !tMobile){
 
     showToast("Fill all fields ❌");
 
@@ -748,6 +751,7 @@ async function autoDetectAndSend(){
 
     name: tName,
     dept: tDept,
+    mobile:tMobile,
     photo: ""
   };
 
