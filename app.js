@@ -897,7 +897,7 @@ async function restoreAttendanceState(){
 }
 
 
-async function checkExistingAttendance(name){
+async function checkExistingAttendance(name, mobile=""){
 
   try{
 
@@ -906,9 +906,7 @@ async function checkExistingAttendance(name){
       "https://script.google.com/macros/s/AKfycbyrfqxx5f20yUAQWWEf8ittksQQmEeFqt9dttcQ7fDZqxB1mvrmpEEsJZCDxsudTAcGwg/exec?type=checkAttendance&name="
       + encodeURIComponent(name)
       + "&mobile="
-      + encodeURIComponent(
-        selectedEmployee?.mobile || ""
-       )
+      + encodeURIComponent(mobile)
       + "&key=Z1TECH123"
 
     );
