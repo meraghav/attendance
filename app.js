@@ -195,7 +195,7 @@ if(existing.active){
   selectedEmployee = {
     name:existing.name,
     dept:existing.dept,
-    mobile:user.mobile || ""
+    mobile:e.mobile || ""
   };
 
   // DIRECT LOGOUT MODE
@@ -554,6 +554,7 @@ document.getElementById("tempDept").value = "";
       name:selectedEmployee.name,
       dept:selectedEmployee.dept,
       mobile:selectedEmployee.mobile || "",
+      staffType: staffType,
       checkInTime:new Date().toISOString()
     })
   );
@@ -825,7 +826,7 @@ async function autoDetectAndSend(){
   console.log("✅ Descriptors Ready");
 }
 
-function restoreAttendanceState(){
+async function restoreAttendanceState(){
 
   let saved =
   localStorage.getItem("attendanceUser");
@@ -834,17 +835,38 @@ function restoreAttendanceState(){
 
   let user = JSON.parse(saved);
 
+  // CHECK BACKEND FIRST
+  let existing =
+  await checkExistingAttendance(
+    user.name,
+    user.mobile || ""
+  );
+
+  // IF NO ACTIVE ATTENDANCE
+  // CLEAR OLD SESSION
+  if(!existing.active){
+
+    localStorage.removeItem("attendanceUser");
+
+    return;
+  }
+
   hasCheckedIn = true;
+
+  staffType =
+  user.staffType || "permanent";
 
   selectedEmployee = {
     name:user.name,
     dept:user.dept,
-    mobile:user.mobile || ""
+    mobile:user.mobile || "",
+    photo:""
   };
 
-  // TIMER RESUME
+  setMode("out");
+
   let start =
-  new Date(user.checkInTime);
+  new Date(existing.inTime);
 
   if(interval) clearInterval(interval);
 
@@ -867,9 +889,6 @@ function restoreAttendanceState(){
 
   },1000);
 
-  setMode("out");
-
-  // DIRECT LOGOUT SCREEN
   show("step4");
 
   showToast(
