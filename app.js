@@ -287,6 +287,26 @@ function capture(){
   return canvas.toDataURL("image/jpeg",0.55);
 }
 
+let cameraStream = null;
+
+async function warmCamera(){
+  try{
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: "user",
+        width: { ideal: 640 },
+        height: { ideal: 640 }
+      }
+    });
+
+    // DON'T attach yet, just keep stream ready
+  }catch(e){
+    console.log("camera warm failed", e);
+  }
+}
+
+warmCamera();
+
 // CAMERA
 async function startCamera(){
 
@@ -294,27 +314,23 @@ async function startCamera(){
     cam.srcObject.getTracks().forEach(t=>t.stop());
   }
 
-  try{
+  if(cameraStream){
+    cam.srcObject = cameraStream;
+    await cam.play();
+    return;
+  }
 
+  // fallback
+  try{
     let stream = await navigator.mediaDevices.getUserMedia({
-      video:{
-        facingMode:"user",
-        width:{ideal:1280},
-        height:{ideal:1280}
-      }
+      video:{ facingMode:"user" }
     });
 
     cam.srcObject = stream;
-
     await cam.play();
 
-    console.log("✅ Camera Ready");
-
   }catch(e){
-
-    console.log(e);
-
-    showToast("Camera permission denied ❌");
+    showToast("Camera error ❌");
   }
 }
 
