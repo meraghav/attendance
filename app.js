@@ -347,6 +347,14 @@ function startTimer(){
 
   },1000);
 }
+
+// ✅ FULL RESET FUNCTION - Resets all temporary fields including mobile
+function resetTemporaryFields() {
+  document.getElementById("tempName").value = "";
+  document.getElementById("tempDept").value = "";
+  document.getElementById("tempMobile").value = ""; // ✅ BUG FIX: mobile reset
+}
+
 // LOGIN / LOGOUT
 async function sendAttendance(type){
 
@@ -510,8 +518,13 @@ if(txt === "ALREADY_OUT"){
 
   name.readOnly = false;
 
-document.getElementById("tempName").value = "";
-document.getElementById("tempDept").value = "";
+  resetTemporaryFields();
+
+selectedEmployee = null;
+ 
+// Cancel scheduled check-in reminder
+    
+cancelCheckInReminder();
 }
 
   // IN
@@ -534,6 +547,7 @@ document.getElementById("tempDept").value = "";
   show("step4");
 
   startTimer();
+  scheduleCheckInReminder(selectedEmployee.name);
 }
     },
 
@@ -675,6 +689,12 @@ function confirmLogout(){
     return;
   }
 
+  // ✅ Exactly 10 digits validation
+  if (!/^\d{10}$/.test(tMobile)) {
+    showToast("Mobile number must be exactly 10 digits ❌");
+    return;
+  }
+
   selectedEmployee = {
 
     name: tName,
@@ -788,4 +808,89 @@ async function checkExistingAttendance(name, mobile=""){
   }
 }
 
-
+// ========================================
+// ✅ PUSH NOTIFICATION SYSTEM
+// ========================================
+ 
+function requestNotificationPermission() {
+  if (!("Notification" in window)) {
+    console.log("This browser does not support notifications");
+    return;
+  }
+  if (Notification.permission === "default") {
+    Notification.requestPermission().then(permission => {
+      if (permission === "granted") {
+        showToast("Notifications enabled 🔔");
+      }
+    });
+  }
+}
+ 
+// Schedule a reminder for next morning at 9:00 AM
+function scheduleCheckInReminder(employeeName) {
+  cancelCheckInReminder(); // clear any existing
+ 
+  let now = new Date();
+  let reminderTime = new Date();
+ 
+  // Set to 9:00 AM tomorrow
+  reminderTime.setDate(reminderTime.getDate() + 1);
+  reminderTime.setHours(9, 0, 0, 0);
+ 
+  let msUntilReminder = reminderTime - now;
+ 
+  let reminderId = setTimeout(() => {
+    sendCheckInNotification(employeeName);
+  }, msUntilReminder);
+ 
+  // Save timer ID to cancel if user checks in again
+  localStorage.setItem("reminderTimerId", reminderId);
+  localStorage.setItem("reminderScheduledFor", reminderTime.toISOString());
+ 
+  console.log(`✅ Check-in reminder scheduled for ${reminderTime.toLocaleTimeString()}`);
+}
+ 
+function cancelCheckInReminder() {
+  let id = localStorage.getItem("reminderTimerId");
+  if (id) {
+    clearTimeout(parseInt(id));
+    localStorage.removeItem("reminderTimerId");
+    localStorage.removeItem("reminderScheduledFor");
+  }
+}
+ 
+function sendCheckInNotification(employeeName) {
+  if (Notification.permission !== "granted") return;
+ 
+  new Notification("⏰ Time to Check In!", {
+    body: `Good Morning ${employeeName}! Don't forget to mark your attendance today. 🟢`,
+    icon: "https://i.ibb.co/Pz5F8DyX/z1techh-logo.jpg",
+    badge: "https://i.ibb.co/Pz5F8DyX/z1techh-logo.jpg",
+    tag: "checkin-reminder",
+    requireInteraction: true  // stays until user dismisses
+  });
+}
+ 
+// On page load - check if a reminder was scheduled and re-schedule if still in future
+window.addEventListener("load", () => {
+  let scheduledFor = localStorage.getItem("reminderScheduledFor");
+  if (scheduledFor) {
+    let reminderTime = new Date(scheduledFor);
+    let now = new Date();
+    if (reminderTime > now) {
+      let msLeft = reminderTime - now;
+      let saved = localStorage.getItem("attendanceUser");
+      if (saved) {
+        let user = JSON.parse(saved);
+        let reminderId = setTimeout(() => {
+          sendCheckInNotification(user.name);
+        }, msLeft);
+        localStorage.setItem("reminderTimerId", reminderId);
+      }
+    } else {
+      // Past time - clear it
+      localStorage.removeItem("reminderTimerId");
+      localStorage.removeItem("reminderScheduledFor");
+    }
+  }
+});
