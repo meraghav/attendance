@@ -440,7 +440,7 @@ if(txt === "ALREADY_COMPLETED"){
 
   hideLoader();
 
-  showToast("Attendance Completed ✅");
+  showToast("Attendance Already Completed ✅");
 
   return;
 }
