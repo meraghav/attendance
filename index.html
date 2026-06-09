@@ -97,13 +97,41 @@ class="hidden">
 placeholder="Temporary Staff Name"
 style="margin-bottom:10px;">
 
-<input id="tempDept"
-placeholder="Department"
-style="margin-bottom:10px;">
-
-<input id="tempMobile"
-placeholder="Mobile Number"
-style="margin-bottom:10px;">
+ <!-- ✅ Department Dropdown with Security Guard Day/Night -->
+    <select id="tempDept" style="
+      width:100%;
+      padding:14px 16px;
+      margin-bottom:10px;
+      background:#1e293b;
+      color:white;
+      border:1.5px solid #334155;
+      border-radius:12px;
+      font-size:15px;
+      appearance:none;
+      -webkit-appearance:none;
+      background-image:url('data:image/svg+xml;utf8,<svg fill=\"white\" height=\"20\" viewBox=\"0 0 24 24\" width=\"20\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>');
+      background-repeat:no-repeat;
+      background-position:right 14px center;
+      cursor:pointer;
+    ">
+      <option value="" disabled selected>Select Department</option>
+      <option value="Security Guard - Day">🌞 Security Guard - Day</option>
+      <option value="Security Guard - Night">🌙 Security Guard - Night</option>
+      <option value="Housekeeping">🧹 Housekeeping</option>
+      <option value="Pantry">🍽️ Pantry</option>
+      <option value="Driver">🚗 Driver</option>
+      <option value="Office Boy">👔 Office Boy</option>
+      <option value="Other">📋 Other</option>
+    </select>
+ 
+    <!-- ✅ Mobile with 10-digit hint -->
+    <input id="tempMobile"
+      placeholder="Mobile Number (10 digits)"
+      type="tel"
+      maxlength="10"
+      inputmode="numeric"
+      pattern="[0-9]{10}"
+      style="margin-bottom:10px;">
 
 <button class="login"
 onclick="continueTemporary()">
