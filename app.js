@@ -7,8 +7,7 @@ let timer = document.getElementById("timer");
 let name = document.getElementById("name");
 let selectedEmployee = null;
 let currentMode = "in"; // or "out"
-let employeeDescriptor = null;
-let descriptorMap = {};
+
 
 const actionBtn = document.getElementById("actionBtn");
 
@@ -27,7 +26,6 @@ fetch("https://script.google.com/a/macros/z1tech.com/s/AKfycbyrfqxx5f20yUAQWWEf8
   photo: row[3],
   mobile: row[4] || ""
 }));
-  preloadDescriptors();
 });
 
   // LOAD TOPPER
@@ -235,16 +233,6 @@ if(existing.active){
   return;
 }
 
-      employeeDescriptor =
-      descriptorMap[e.name];
-
-      if(!employeeDescriptor){
-
-       showToast("Face loading ⏳");
-
-       return;
-     }
-
       box.innerHTML = "";
 
       setMode("in");
@@ -378,22 +366,6 @@ async function sendAttendance(type){
 
   // photo capture
   let photo = capture();
-
-  // face match
- if(staffType === "permanent"){
-
-  let match =
-  await faceMatch(selectedEmployee.photo);
-
-  if(!match){
-
-    hideLoader();
-
-    showToast("Face Not Matched ❌");
-
-    return;
-  }
-}
 
   // check states
   if(type === "in" && hasCheckedIn){
@@ -577,68 +549,11 @@ document.getElementById("tempDept").value = "";
   );
 }
 
-async function faceMatch(employeePhoto){
 
-   if(!modelsLoaded){
-    showToast("Models is loading... ⏳");
-    return false;
-  }
+window.onload = () => {
 
-  const video = document.getElementById("cam");
-
-  const detection = await faceapi.detectSingleFace(
-    video,
-    new faceapi.TinyFaceDetectorOptions()
-  ).withFaceLandmarks().withFaceDescriptor();
-
-  if(!employeePhoto){
-  showToast("No stored photo ❌");
-  return false;
-}
-
-  if(!detection){
-    showToast("No face detected ❌");
-    return false;
-  }
-
-  if(!employeeDescriptor){
-  showToast("Face profile not loaded ❌");
-  return false;
-}
-
-const distance = faceapi.euclideanDistance(
-  detection.descriptor,
-  employeeDescriptor
-);
-
-  console.log("Face distance:", distance);
-
-  return distance < 0.5;
-}
-
-async function loadModels(){
-
-  const MODEL_URL = "https://justadudewhohacks.github.io/face-api.js/models";
-
-  await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-  await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-  await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-console.log("✅ Models Loaded");
-}
-
-let modelsLoaded = false;
-window.onload = async () => {
-
-  showLoader();
-
-  await loadModels();
-
-  modelsLoaded = true;
-
-  hideLoader();
-
-  // RESTORE LOGIN
   restoreAttendanceState();
+
 };
 
 const OFFICE_LAT = 28.499194530261953;  
@@ -673,21 +588,6 @@ function confirmLogout(){
     show("step3");
 
     startCamera();
-  }
-}
-
-async function autoDetectAndSend(){
-
-  let match = await faceMatch(selectedEmployee.photo);
-
-  if(match){
-    sendAttendance(currentMode);
-  } else {
-
-    showToast("Face not detected. Try manually 👇");
-
-    actionBtn.disabled = false;
-    actionBtn.style.opacity = "1";
   }
 }
 
@@ -790,41 +690,6 @@ async function autoDetectAndSend(){
   startCamera();
 }
 
-  async function preloadDescriptors(){
-
-  for(const e of employees){
-
-    try{
-
-      const img =
-      await faceapi.fetchImage(e.photo);
-
-      const detection =
-      await faceapi
-      .detectSingleFace(
-        img,
-        new faceapi.TinyFaceDetectorOptions()
-      )
-      .withFaceLandmarks()
-      .withFaceDescriptor();
-
-      if(detection){
-
-        descriptorMap[e.name] =
-        detection.descriptor;
-      }
-
-    }catch(err){
-
-      console.log(
-        "Descriptor preload failed:",
-        e.name
-      );
-    }
-  }
-
-  console.log("✅ Descriptors Ready");
-}
 
 async function restoreAttendanceState(){
 
