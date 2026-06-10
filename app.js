@@ -572,7 +572,7 @@ window.onload = () => {
 
 const OFFICE_LAT = 28.499194530261953;  
 const OFFICE_LNG = 77.08088784902715;   
-const MAX_RADIUS = 150000000000;       
+const MAX_RADIUS = 150;       
 
 function getDistance(lat1, lon1, lat2, lon2){
 
