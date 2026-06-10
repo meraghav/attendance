@@ -5,115 +5,41 @@
 <link rel="stylesheet" href="./style.css">
 <link rel="icon" type="image/png" href="https://i.ibb.co/Pz5F8DyX/z1techh-logo.jpg">
 </head>
-
 <body>
-
 <div id="loader" style="display:none;">
   <div class="spinner"></div>
 </div>
-
 <div class="container">
-
 <h2 id="welcome"></h2>
-
-<p id="subHeading">
-  Face Recognition Attendance System
-</p>
+<p id="subHeading">Face Recognition Attendance System</p>
 
 <!-- TOPPER -->
-  
 <div id="topperCard" class="card hidden">
-
-<div id="topperWrap"></div>
-
+  <div id="topperWrap"></div>
 </div>
 
 <!-- STAFF TYPE -->
-  
-<div id="staffTypeBox"
-style="
-display:flex;
-gap:10px;
-margin-top:25px;
-background:#1e293b;
-padding:8px;
-border-radius:30px;
-">
-
-<button id="permanentBtn"
-onclick="setStaffType('permanent')"
-style="
-flex:1;
-width:auto;
-margin-top:0;
-padding:14px;
-border:none;
-border-radius:22px;
-background:linear-gradient(135deg,#22c55e,#4ade80);
-color:white;
-font-size:17px;
-font-weight:600;
-">
-Permanent
-</button>
-
-<button id="temporaryBtn"
-onclick="setStaffType('temporary')"
-style="
-flex:1;
-width:auto;
-margin-top:0;
-padding:14px;
-border:none;
-border-radius:22px;
-background:#334155;
-color:white;
-font-size:17px;
-font-weight:600;
-">
-Temporary
-</button>
-
+<div id="staffTypeBox" style="display:flex;gap:10px;margin-top:25px;background:#1e293b;padding:8px;border-radius:30px;">
+  <button id="permanentBtn" onclick="setStaffType('permanent')" style="flex:1;width:auto;margin-top:0;padding:14px;border:none;border-radius:22px;background:linear-gradient(135deg,#22c55e,#4ade80);color:white;font-size:17px;font-weight:600;">
+    Permanent
+  </button>
+  <button id="temporaryBtn" onclick="setStaffType('temporary')" style="flex:1;width:auto;margin-top:0;padding:14px;border:none;border-radius:22px;background:#334155;color:white;font-size:17px;font-weight:600;">
+    Temporary
+  </button>
 </div>
 
 <!-- SEARCH -->
-  
 <div id="step2" class="card hidden">
+  <div id="permanentFields">
+    <input id="name" placeholder="Search your name..." onkeyup="filterNames()">
+    <div id="suggestions"></div>
+  </div>
 
-<div id="permanentFields">
+  <div id="temporaryFields" class="hidden">
+    <input id="tempName" placeholder="Temporary Staff Name" style="margin-bottom:10px;">
 
-<input id="name"
-placeholder="Search your name..."
-onkeyup="filterNames()">
-
-<div id="suggestions"></div>
-
-</div>
-
-<div id="temporaryFields"
-class="hidden">
-
-<input id="tempName"
-placeholder="Temporary Staff Name"
-style="margin-bottom:10px;">
-
- <!-- ✅ Department Dropdown with Security Guard Day/Night -->
-    <select id="tempDept" style="
-      width:100%;
-      padding:14px 16px;
-      margin-bottom:10px;
-      background:#1e293b;
-      color:white;
-      border:1.5px solid #334155;
-      border-radius:12px;
-      font-size:15px;
-      appearance:none;
-      -webkit-appearance:none;
-      background-image:url('data:image/svg+xml;utf8,<svg fill=\"white\" height=\"20\" viewBox=\"0 0 24 24\" width=\"20\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>');
-      background-repeat:no-repeat;
-      background-position:right 14px center;
-      cursor:pointer;
-    ">
+    <!-- ✅ Department Dropdown -->
+    <select id="tempDept" style="width:100%;padding:14px 16px;margin-bottom:10px;background:#1e293b;color:white;border:1.5px solid #334155;border-radius:12px;font-size:15px;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg fill=\"white\" height=\"20\" viewBox=\"0 0 24 24\" width=\"20\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>');background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;">
       <option value="" disabled selected>Select Department</option>
       <option value="Security Guard - Day">🌞 Security Guard - Day</option>
       <option value="Security Guard - Night">🌙 Security Guard - Night</option>
@@ -123,46 +49,38 @@ style="margin-bottom:10px;">
       <option value="Office Boy">👔 Office Boy</option>
       <option value="Other">📋 Other</option>
     </select>
- 
-    <!-- ✅ Mobile with 10-digit hint -->
-    <input id="tempMobile"
-      placeholder="Mobile Number (10 digits)"
-      type="tel"
-      maxlength="10"
-      inputmode="numeric"
-      pattern="[0-9]{10}"
-      style="margin-bottom:10px;">
 
-<button class="login"
-onclick="continueTemporary()">
-Continue
-</button>
-
-</div>
-
+    <!-- ✅ 10-digit mobile -->
+    <input id="tempMobile" placeholder="Mobile Number (10 digits)" type="tel" maxlength="10" inputmode="numeric" pattern="[0-9]{10}" style="margin-bottom:10px;">
+    <button class="login" onclick="continueTemporary()">Continue</button>
+  </div>
 </div>
 
 <!-- CAMERA -->
-  
 <div id="step3" class="card hidden">
-  <div class="camera">
+
+  <!-- ✅ Face status message -->
+  <div id="faceStatus" style="text-align:center;min-height:24px;margin-bottom:8px;"></div>
+
+  <!-- ✅ Camera wrapped for border feedback -->
+  <div id="camWrap" class="camera" style="border-radius:16px;overflow:hidden;transition:border 0.3s;">
     <video id="cam" autoplay muted playsinline></video>
   </div>
+
   <button id="actionBtn" class="login">📸 IN</button>
 </div>
 
 <!-- TIMER -->
-  
 <div id="step4" class="card hidden">
   <div id="timer"></div>
   <button class="logout" onclick="confirmLogout()">🔴 OUT</button>
 </div>
 
 </div>
-
 <div id="toast"></div>
-  
-<script src="app.js"></script>
 
+<!-- ✅ face-api.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
