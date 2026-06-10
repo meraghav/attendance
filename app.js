@@ -23,7 +23,7 @@ let faceApiLoaded = false;
 async function loadFaceApi() {
   try {
     await Promise.all([
-      faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+      faceapi.nets.tinyFaceDetector.loadFromUri("./models"),
     ]);
     faceApiLoaded = true;
     console.log("✅ Face API loaded");
