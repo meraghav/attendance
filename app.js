@@ -19,19 +19,24 @@ actionBtn.onclick = () => {
 // ========================================
 let faceDetectionInterval = null;
 let faceApiLoaded = false;
+let faceApiLoadPromise = null;
 
 async function loadFaceApi() {
-  try {
-    await Promise.all([
-      faceapi.nets.tinyFaceDetector.loadFromUri("./models"),
-    ]);
-    faceApiLoaded = true;
-    console.log("✅ Face API loaded");
-  } catch (e) {
-    console.warn("⚠️ Face API failed to load:", e);
-    // If models fail, we allow capture anyway (graceful fallback)
-    faceApiLoaded = false;
-  }
+  // ✅ FIX: Return same promise if already loading — no race condition
+  if (faceApiLoadPromise) return faceApiLoadPromise;
+
+  faceApiLoadPromise = (async () => {
+    try {
+      await faceapi.nets.tinyFaceDetector.loadFromUri("./models");
+      faceApiLoaded = true;
+      console.log("✅ Face API loaded");
+    } catch (e) {
+      console.warn("⚠️ Face API failed:", e);
+      faceApiLoaded = false;
+    }
+  })();
+
+  return faceApiLoadPromise;
 }
 
 // Start real-time face scan on video feed
@@ -41,49 +46,63 @@ function startFaceDetection() {
   const statusEl = document.getElementById("faceStatus");
   const camWrap = document.getElementById("camWrap");
 
-  // Disable button until face found
-  actionBtn.disabled = true;
-  actionBtn.style.opacity = "0.5";
-
   if (!faceApiLoaded) {
-    // Graceful fallback: if models not loaded, just allow
-    if (statusEl) statusEl.innerHTML = "";
-    actionBtn.disabled = false;
-    actionBtn.style.opacity = "1";
+    // ✅ FIX: Show loading state, wait for models then start detection
+    if (statusEl) statusEl.innerHTML = `<span style="color:#94a3b8;font-size:14px;">⏳ Loading face detection...</span>`;
+    actionBtn.disabled = true;
+    actionBtn.style.opacity = "0.5";
+
+    // Wait for face API to finish loading then start
+    faceApiLoadPromise.then(() => {
+      if (faceApiLoaded) {
+        startFaceDetection(); // retry now that it's loaded
+      } else {
+        // Models truly failed — fallback allow
+        if (statusEl) statusEl.innerHTML = "";
+        actionBtn.disabled = false;
+        actionBtn.style.opacity = "1";
+      }
+    });
     return;
   }
+
+  // Disable until first detection
+  actionBtn.disabled = true;
+  actionBtn.style.opacity = "0.5";
+  if (statusEl) statusEl.innerHTML = `<span style="color:#94a3b8;font-size:14px;">🔍 Scanning for face...</span>`;
 
   faceDetectionInterval = setInterval(async () => {
     if (!cam.srcObject || cam.paused || cam.ended) return;
 
-    const detections = await faceapi.detectAllFaces(
-      cam,
-      new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })
-    );
+    try {
+      const detections = await faceapi.detectAllFaces(
+        cam,
+        new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })
+      );
 
-    if (detections.length === 1) {
-      // ✅ Exactly one face detected
-      if (statusEl) statusEl.innerHTML = `<span style="color:#22c55e;font-size:15px;font-weight:600;">✅ Face detected — ready to capture</span>`;
-      if (camWrap) camWrap.style.border = "3px solid #22c55e";
-      actionBtn.disabled = false;
-      actionBtn.style.opacity = "1";
+      if (detections.length === 1) {
+        if (statusEl) statusEl.innerHTML = `<span style="color:#22c55e;font-size:15px;font-weight:600;">✅ Face detected — ready to capture</span>`;
+        if (camWrap) camWrap.style.border = "3px solid #22c55e";
+        actionBtn.disabled = false;
+        actionBtn.style.opacity = "1";
 
-    } else if (detections.length === 0) {
-      // ❌ No face
-      if (statusEl) statusEl.innerHTML = `<span style="color:#f87171;font-size:15px;font-weight:600;">❌ No face detected — position your face</span>`;
-      if (camWrap) camWrap.style.border = "3px solid #ef4444";
-      actionBtn.disabled = true;
-      actionBtn.style.opacity = "0.5";
+      } else if (detections.length === 0) {
+        if (statusEl) statusEl.innerHTML = `<span style="color:#f87171;font-size:15px;font-weight:600;">❌ No face — position your face in camera</span>`;
+        if (camWrap) camWrap.style.border = "3px solid #ef4444";
+        actionBtn.disabled = true;
+        actionBtn.style.opacity = "0.5";
 
-    } else {
-      // ❌ Multiple faces
-      if (statusEl) statusEl.innerHTML = `<span style="color:#fbbf24;font-size:15px;font-weight:600;">⚠️ Multiple faces — only one allowed</span>`;
-      if (camWrap) camWrap.style.border = "3px solid #f59e0b";
-      actionBtn.disabled = true;
-      actionBtn.style.opacity = "0.5";
+      } else {
+        if (statusEl) statusEl.innerHTML = `<span style="color:#fbbf24;font-size:15px;font-weight:600;">⚠️ Multiple faces — only one person allowed</span>`;
+        if (camWrap) camWrap.style.border = "3px solid #f59e0b";
+        actionBtn.disabled = true;
+        actionBtn.style.opacity = "0.5";
+      }
+    } catch (e) {
+      console.warn("Detection error:", e);
     }
 
-  }, 500); // check every 500ms
+  }, 500);
 }
 
 function stopFaceDetection() {
