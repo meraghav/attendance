@@ -85,16 +85,6 @@
   <!-- CAMERA -->
   <div id="step3" class="card hidden">
 
-    <!-- Half Day Toggle -->
-    <div id="halfDayWrap" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;">
-      <span style="font-size:13px;color:#94a3b8;">Full Day</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="halfDayToggle">
-        <span class="toggle-slider"></span>
-      </label>
-      <span style="font-size:13px;color:#94a3b8;">Half Day</span>
-    </div>
-
     <div id="faceStatus" style="text-align:center;min-height:24px;margin-bottom:8px;"></div>
 
     <div id="camWrap" class="camera" style="border-radius:50%;overflow:hidden;transition:border 0.3s;">
@@ -108,6 +98,7 @@
   <div id="step4" class="card hidden">
     <div id="attendanceBadge"></div>
     <div id="timer"></div>
+    <div id="liveClock"></div>
     <button class="logout" onclick="confirmLogout()">🔴 OUT</button>
     <button class="history-btn" onclick="showHistory()">📋 My Attendance History</button>
   </div>
