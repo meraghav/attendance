@@ -228,11 +228,6 @@ function type() {
 }
 type();
 
-// HALF DAY TOGGLE
-document.getElementById("halfDayToggle").addEventListener("change", function () {
-  isHalfDay = this.checked;
-});
-
 // SEARCH
 function filterNames() {
   let input = document.getElementById("name");
@@ -392,14 +387,42 @@ function hideLoader() { loader.style.display = "none"; }
 // TIMER
 // ============================================
 let startTime, interval;
+let clockInterval = null;
+
 function startTimer() {
   if (interval) clearInterval(interval);
   startTime = new Date();
   interval = setInterval(() => {
     let diff = Math.floor((new Date() - startTime) / 1000);
-    let m = Math.floor(diff / 60), s = diff % 60;
-    timer.innerText = "⏱ " + m + "m " + s + "s";
+    let h = Math.floor(diff / 3600);
+    let m = Math.floor((diff % 3600) / 60);
+    let s = diff % 60;
+    let hStr = h > 0 ? h + "h " : "";
+    timer.innerText = "⏱ " + hStr + m + "m " + s + "s";
   }, 1000);
+}
+
+function startLiveClock() {
+  if (clockInterval) clearInterval(clockInterval);
+  updateClock();
+  clockInterval = setInterval(updateClock, 1000);
+}
+
+function updateClock() {
+  let el = document.getElementById("liveClock");
+  if (!el) return;
+  let now = new Date();
+  let dateStr = now.toLocaleDateString("en-IN", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric"
+  });
+  let timeStr = now.toLocaleTimeString("en-IN", {
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true
+  });
+  el.innerHTML = `<div class="live-date">${dateStr}</div><div class="live-time">${timeStr}</div>`;
+}
+
+function stopLiveClock() {
+  if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
 }
 
 function resetTemporaryFields() {
@@ -415,7 +438,7 @@ let autoLogoutTimer = null;
 
 function scheduleClientAutoLogout(checkInTime, userName, halfDay) {
   if (autoLogoutTimer) clearTimeout(autoLogoutTimer);
-  const maxHours  = halfDay ? 6 : 12;
+  const maxHours  = halfDay ? 6 : 15;
   const maxMs     = maxHours * 60 * 60 * 1000;
   let elapsed     = new Date() - new Date(checkInTime);
   let remaining   = maxMs - elapsed;
@@ -432,6 +455,7 @@ function handleClientAutoLogout(userName) {
   cancelCheckInReminder();
   if (interval) clearInterval(interval);
   if (autoLogoutTimer) clearTimeout(autoLogoutTimer);
+  stopLiveClock();
   if (cam.srcObject) cam.srcObject.getTracks().forEach(t => t.stop());
   stopFaceDetection();
   stopScreenshotBlock();
@@ -491,24 +515,37 @@ async function sendAttendance(type) {
 
         if (type === "in") {
           hasCheckedIn = true;
+          isHalfDay = false;
           let checkInTime = new Date();
           localStorage.setItem("attendanceUser", JSON.stringify({
             name: selectedEmployee.name, dept: selectedEmployee.dept,
             mobile: selectedEmployee.mobile || "", staffType,
-            checkInTime: checkInTime.toISOString(), isHalfDay
+            checkInTime: checkInTime.toISOString(), isHalfDay: false
           }));
-          updateAttendanceBadge(isHalfDay);
+          updateAttendanceBadge(false);
           show("step4");
           startTimer();
+          startLiveClock();
           scheduleCheckInReminder(selectedEmployee.name);
-          scheduleClientAutoLogout(checkInTime, selectedEmployee.name, isHalfDay);
+          scheduleClientAutoLogout(checkInTime, selectedEmployee.name, false);
         }
 
         if (type === "out") {
+          // ✅ AUTO HALF DAY offline
+          let savedUser = localStorage.getItem("attendanceUser");
+          if (savedUser) {
+            let u = JSON.parse(savedUser);
+            if (u.checkInTime) {
+              let hoursWorked = (new Date() - new Date(u.checkInTime)) / (1000 * 60 * 60);
+              isHalfDay = hoursWorked < 6;
+              data.isHalfDay = isHalfDay;
+            }
+          }
           hasCheckedIn = false;
           localStorage.removeItem("attendanceUser");
           clearInterval(interval);
           if (autoLogoutTimer) clearTimeout(autoLogoutTimer);
+          stopLiveClock();
           show("step2");
           name.value = ""; name.disabled = false; name.readOnly = false;
           resetTemporaryFields();
@@ -546,10 +583,21 @@ async function sendAttendance(type) {
       showToast(type.toUpperCase() + " SUCCESSFULLY ✅");
 
       if (type === "out") {
+        // ✅ AUTO HALF DAY: 6 hours se kam = half day
+        let savedUser = localStorage.getItem("attendanceUser");
+        if (savedUser) {
+          let u = JSON.parse(savedUser);
+          if (u.checkInTime) {
+            let hoursWorked = (new Date() - new Date(u.checkInTime)) / (1000 * 60 * 60);
+            isHalfDay = hoursWorked < 6;
+            data.isHalfDay = isHalfDay;
+          }
+        }
         hasCheckedIn = false;
         localStorage.removeItem("attendanceUser");
         clearInterval(interval);
         if (autoLogoutTimer) clearTimeout(autoLogoutTimer);
+        stopLiveClock();
         show("step2");
         name.value = ""; name.disabled = false; name.readOnly = false;
         resetTemporaryFields();
@@ -559,17 +607,19 @@ async function sendAttendance(type) {
 
       if (type === "in") {
         hasCheckedIn = true;
+        isHalfDay = false; // reset on fresh check-in
         let checkInTime = new Date();
         localStorage.setItem("attendanceUser", JSON.stringify({
           name: selectedEmployee.name, dept: selectedEmployee.dept,
           mobile: selectedEmployee.mobile || "", staffType,
-          checkInTime: checkInTime.toISOString(), isHalfDay
+          checkInTime: checkInTime.toISOString(), isHalfDay: false
         }));
-        updateAttendanceBadge(isHalfDay);
+        updateAttendanceBadge(false);
         show("step4");
         startTimer();
+        startLiveClock();
         scheduleCheckInReminder(selectedEmployee.name);
-        scheduleClientAutoLogout(checkInTime, selectedEmployee.name, isHalfDay);
+        scheduleClientAutoLogout(checkInTime, selectedEmployee.name, false);
       }
     },
     (err) => { console.log(err); hideLoader(); showToast("Location permission required ❌"); }
@@ -690,6 +740,7 @@ async function restoreAttendanceState() {
 
   show("step4");
   showToast("Welcome Back " + user.name + " 👋");
+  startLiveClock();
   scheduleClientAutoLogout(start, user.name, isHalfDay);
 }
 
