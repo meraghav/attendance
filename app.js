@@ -476,9 +476,6 @@ function handleClientAutoLogout(userName) {
 // SEND ATTENDANCE
 // ============================================
 async function sendAttendance(type) {
-  if (actionBtn.disabled) return;
-  actionBtn.disabled = true;
-  actionBtn.style.opacity = "0.6";
   showLoader();
 
   if (!cam.srcObject) { hideLoader(); showToast("Camera not started ❌"); return; }
@@ -580,7 +577,6 @@ async function sendAttendance(type) {
       }
 
       hideLoader();
-      resetBtn();
       stopFaceDetection();
       stopScreenshotBlock();
       setTimeout(() => { if (cam.srcObject) cam.srcObject.getTracks().forEach(t => t.stop()); }, 500);
@@ -679,11 +675,6 @@ function setMode(mode) {
   currentMode = mode;
   if (mode === "in")  { actionBtn.innerText = "📸 IN";  actionBtn.className = "login"; }
   if (mode === "out") { actionBtn.innerText = "🔴 OUT"; actionBtn.className = "logout"; }
-}
-
-function resetBtn() {
-  actionBtn.disabled = false;
-  actionBtn.style.opacity = "1";
 }
 
 function setStaffType(type) {
